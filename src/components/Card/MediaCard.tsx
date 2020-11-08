@@ -17,7 +17,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MediaCard({ content,title, image } ) {
+export default function MediaCard({data}) {
   const classes = useStyles();
 
   return (
@@ -25,16 +25,24 @@ export default function MediaCard({ content,title, image } ) {
       <CardActionArea>
         <CardMedia
           className={classes.media}
-          image={image}
+          image={data.image}
           title="Contemplative Reptile"
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
-        {title}
+        {data.title}
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-         {content}
+         {data.content}
+         
           </Typography>
+          {data.sum? 
+            <Typography variant="body2" color="textSecondary" component="p">
+           <b>Valor Total:</b> {data.sum}
+            
+             </Typography> : ''
+        
+        }
         </CardContent>
       </CardActionArea>
    

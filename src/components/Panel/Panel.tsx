@@ -63,22 +63,18 @@ export default class PanelComponent extends React.Component<TodoProps> {
   }
 
   render() {
-    // const { items } = this.props;
-    // If necessary, you can render some placeholder until the data is loaded
-    //if (items.length === 0) {
-    //  return <div>Loading...</div>
-    //}
-//console.log(this.state, this.props , 'aaaa')
+  
+    if (this.state.items.length === 0) {
+     return <div>Loading...</div>
+    }
 
-console.log('items ',this.props.endpoint, this.state.items)
+
     const dataType = this.props.endpoint;
     // let budget = objArray.map(({ foo }) => foo)
 
     let budget = [1,2,3,4]
     budget = this.state.items.map( (item: any) => item.BUDGET);
-    var result = this.state.items.map((item:any)  => ({ budget: item.BUDGET, guests: item.NUMBER_OF_GUESTS, style: item.STYLE }));
 
-console.log('Budget', budget)
 const numberToReal = (numero) => {
   var numero = numero.toFixed(2).split('.');
   numero[0] = "R$ " + numero[0].split(/(?=(?:...)*$)/).join('.');
@@ -93,6 +89,8 @@ const sum =  (total, currentValue, currentIndex, arr)  =>{
   total.push(newVal);
   return total;
 }
+
+const sortedNumbers = (num) => num.sort((a, b) => b - a)
 
 
 
@@ -114,26 +112,81 @@ const maxNum = findMax(...budget);
 
 const maxNumReais = maxNum? numberToReal(maxNum) : '';
 
-//console.log('sum', budgetsum );
 const filterByValue = (array, string) => {
   return array.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(string.toLowerCase()) !== -1);
 }
+
+var result = this.state.items.map((item:any)  => ({ budget: parseInt(item.BUDGET), guests: item.NUMBER_OF_GUESTS, style: item.STYLE }));
+
 const classic = result?  filterByValue(result, 'classico') : '';
 const rustico = result?  filterByValue(result, 'rustico') : '';
 
 
 const moderno = result?  filterByValue(result, 'moderno') : '';
 
-// var rusticoSum = rustico.map((item:any)  => item.budget);
-// var guestsRusticoSum = rustico.map((item:any)  => item.guests);
-// var sumgRustico = guestsRusticoSum.reduce(sum, []);
 
+
+// var rusticoSum = rustico.map((item:any)  => item.budget);
+ var guestsRusticoSum = rustico.map((item:any)  => parseInt(item.guests));
+
+ var budgetRusticoSum = rustico.map((item:any)  => parseInt(item.budget));
+ var budgetModernoSum = moderno.map((item:any)  => parseInt(item.budget));
+ var budgetClassSum = classic.map((item:any)  => parseInt(item.budget));
+
+ var sumgRustico = sortedNumbers(guestsRusticoSum);
+ var budgetRusSort = sortedNumbers(budgetRusticoSum);
+ const sumgRus = sumgRustico? sumgRustico.slice(0, rustico.length).reduce((a, b) => a + b, 0) : '';
+ const budgetRus = budgetRusSort? budgetRusSort.slice(0, budgetRusticoSum.length).reduce((a, b) => parseInt(a) + parseInt(b), 0) : '';
+
+const noZero = budgetRusSort.filter(val => val !== 0);
+ const averageBudget = budgetRusSort? budgetRusSort.reduce((a,v,i)=>(a*i+v)/(i+1), 0) : '';
+  console.log('budgetRusSort',budgetRusticoSum.join().split(','))
+
+const StrArr = budgetRusticoSum.join().split(',');
+
+const StrMod = budgetModernoSum.join().split(',');
+const StrClass = budgetClassSum.join().split(',');
+
+  const SumSum = StrArr
+  .map( function(elt){ // assure the value can be converted into an integer
+    return /^\d+$/.test(elt) ? parseInt(elt) : 0; 
+  })
+  .reduce( function(a,b){ // sum all resulting numbers
+    return a+b
+  })
+
+  const SumSumMod = StrMod
+  .map( function(elt){ // assure the value can be converted into an integer
+    return /^\d+$/.test(elt) ? parseInt(elt) : 0; 
+  })
+  .reduce( function(a,b){ // sum all resulting numbers
+    return a+b
+  })
+
+
+  const SumSumClass = StrClass
+  .map( function(elt){ // assure the value can be converted into an integer
+    return /^\d+$/.test(elt) ? parseInt(elt) : 0; 
+  })
+  .reduce( function(a,b){ // sum all resulting numbers
+    return a+b
+  })
+  const sumTotal = SumSumClass + SumSumMod + SumSum;
+
+
+  // console.log('budget Rustico', budgetRus)
+
+  // console.log('guests sort', sumgRustico)
+  // console.log('average sort', averageBudget)
+
+  // console.log('SumRus',parseInt(sumgRus) )
+  //console.log('SumRus',budgetRus )
 // var sumRustico = rusticoSum.reduce(sum, []);
 //  console.log('rusticoSum', rustico? sumgRustico : '', )
 //   console.log('rusticoSum', rustico? sumRustico : '', )
-console.log('Classico', classic, classic.length );
-console.log('Rustico', rustico, rustico.length );
-console.log('Moderno', moderno, moderno.length );
+// console.log('Classico', classic, classic.length );
+// console.log('Rustico', rustico, rustico.length );
+// console.log('Moderno', moderno, moderno.length );
     //  const a = this.state.items.map((item: dataApi) => (
     //     budget = item.BUDGET
     //   ));
@@ -158,7 +211,7 @@ console.log('Moderno', moderno, moderno.length );
       ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
     };
 
-   
+
 
     // const a = this.state.items.map((item: dataApi) => (
     //     this.state.dataTable.BUDGET = item.BUDGET
@@ -167,6 +220,33 @@ console.log('Moderno', moderno, moderno.length );
     //   const b =  {brands.map((brand) => {
     //     return <p>{brand}</p>;
     //   })}
+
+    const imageCas =  'https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg';
+const dataRustico = {
+  content:rustico.length,
+  title:"Casamentos Rusticos",
+  image:imageCas,
+  sum: numberToReal(SumSum)
+}
+const dataModerno = {
+  content:moderno.length,
+  title:"Casamentos Modernos",
+  image:imageCas,
+  sum: numberToReal(SumSumMod)
+}
+
+const dataClassic ={
+  content:classic.length,
+  title:"Casamentos Classicos",
+  image:imageCas,
+  sum: numberToReal(SumSumClass)
+}
+const dataWedding = { 
+  content:maxNumReais,
+  image:imageCas,
+  title:"Casamentos",
+  sum: numberToReal(sumTotal)
+}
 
     return (
       <div>
@@ -179,26 +259,20 @@ console.log('Moderno', moderno, moderno.length );
     <div>
        <Grid container spacing={3}>
        <Grid item xs={3}>
-       <MediaCard  content={maxNumReais} title="Casamento mais caro" image="https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg"/> <br/>
-
+       <MediaCard  data={dataWedding}/> 
        </Grid>
        <Grid item xs={3}>
-       <MediaCard  content={rustico.length} title="Casamentos Rusticos" image="https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg"/> <br/>
-
-  
+       <MediaCard  data={dataClassic} /> 
        </Grid>
        <Grid item xs={3}>
-       <MediaCard  content={classic.length} title="Casamentos Clássicos" image="https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg"/> <br/>
-
-  
+       <MediaCard  data={dataRustico} />
        </Grid>
        <Grid item xs={3}>
-       <MediaCard  content={moderno.length} title="Casamentos Modernos" image="https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg"/> <br/>
+       <MediaCard  data={dataModerno} /> 
 
-  
        </Grid>
        </Grid>
-    
+    <br/>
   
     <MaterialTable
     icons={tableIcons}
