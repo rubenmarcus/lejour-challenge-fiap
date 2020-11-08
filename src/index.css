@@ -5,9 +5,25 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background:#f4f4f4
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+
+.container{
+  width:1200px;
+  margin:0 auto;
+}
+
+.MTableToolbar-root-5{
+
+  background: #e48787;
+}
+
+.MuiInputBase-input{
+  background:#fff
 }

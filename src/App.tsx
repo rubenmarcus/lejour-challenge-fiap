@@ -7,7 +7,11 @@ function App() {
     <div className="App">
 
       <main>
+        <div className="container">
         <PanelComponent endpoint="wedding" />
+        <PanelComponent endpoint="appointment" />
+
+        </div>
       </main>
     </div>
   );
