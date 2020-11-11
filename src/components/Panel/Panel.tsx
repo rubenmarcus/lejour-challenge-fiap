@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import dataFetch from '../../data/fetch';
-import  MaterialTable from 'material-table';
+import MaterialTable from 'material-table';
 import { ListItemSecondaryAction } from '@material-ui/core';
 import AddBox from '@material-ui/icons/AddBox';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
@@ -18,37 +18,47 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import {Icons} from 'material-table';
+import { Icons } from 'material-table';
 import MediaCard from '../Card/MediaCard'
+import DataCard from '../Card/DataCard'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
+import {
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+} from 'recharts';
+import { sumNums, filterByValue, AvgNums, returnSums, numberToReal } from '../../helpers';
 
 interface TodoProps {
   endpoint: string,
 }
 
-interface TodoState{
-  items: dataApi[]
+interface TodoState {
+  items: dataApi[],
+  weddingsUser: Array<any>
 }
 type dataApi = {
-  
+
   BUDGET: number;
 }
 
 export default class PanelComponent extends React.Component<TodoProps> {
   public state = {
-   items: [],
-    budget: []
+    items: [],
+    budget: [],
+    weddingsUser: [],
+    favorites: []
   }
 
-  
-  
+
+
 
   constructor(props: TodoProps) {
     super(props);
     this.state = {
       items: [],
-      budget: []
+      budget: [],
+      weddingsUser: [],
+      favorites: []
     }
   }
 
@@ -56,142 +66,116 @@ export default class PanelComponent extends React.Component<TodoProps> {
 
     const stringParams = "limit=1000000&query_type=and";
     const queryParams = new URLSearchParams(stringParams);
+    
+    const stringParamsA = new URLSearchParams("limit=1000000&query_type=and");
+
+    dataFetch('user', stringParamsA)
+    .then(items => { 
+      this.setState({ weddingsUser:items })
+      // dataFetch('wedding', queryParams)
+      // .then(items => this.setState({ items: items, budget: items.BUDGET })).then(
+      // )
+    
+    });
+
+
+    dataFetch('wedding_favorites', stringParamsA)
+    .then(items => { 
+      this.setState({ favorites:items })
+      // dataFetch('wedding', queryParams)
+      // .then(items => this.setState({ items: items, budget: items.BUDGET })).then(
+      // )
+    
+    });
 
 
     dataFetch(this.props.endpoint, queryParams)
-      .then(items => this.setState({ items: items , budget: items.BUDGET}))
+      .then(items => this.setState({ items: items, budget: items.BUDGET })).then(
+      )
   }
 
-  render() {
   
+
+
+
+  render() {
+
     if (this.state.items.length === 0) {
-     return <div>Loading...</div>
+      return <div>Loading...</div>
     }
 
 
     const dataType = this.props.endpoint;
     // let budget = objArray.map(({ foo }) => foo)
 
-    let budget = [1,2,3,4]
-    budget = this.state.items.map( (item: any) => item.BUDGET);
-
-const numberToReal = (numero) => {
-  var numero = numero.toFixed(2).split('.');
-  numero[0] = "R$ " + numero[0].split(/(?=(?:...)*$)/).join('.');
-  return numero.join(',');
-}
-
-const sum =  (total, currentValue, currentIndex, arr)  =>{
-  var newVal = currentValue; // The new value is the current number
-  if (currentIndex > 0) { // If we are in the second position or more, sum the last value, which is the curent position minus one.
-      newVal += total[currentIndex-1];
-  }
-  total.push(newVal);
-  return total;
-}
-
-const sortedNumbers = (num) => num.sort((a, b) => b - a)
+    let budget = [1, 2, 3, 4]
+    budget = this.state.items.map((item: any) => item.BUDGET);
 
 
 
 
-const findMax = (...budget) => {
-  let currentMax = budget[0]; // 2
 
-  for (const number of budget) {
-    if (number > currentMax) {
-      console.log(number, currentMax);
-      currentMax = number;
+
+
+    const findMax = (...budget) => {
+      let currentMax = budget[0]; // 2
+
+      for (const number of budget) {
+        if (number > currentMax) {
+         // console.log(number, currentMax);
+          currentMax = number;
+        }
+      }
+      return currentMax;
+    };
+
+    const maxNum = findMax(...budget);
+
+    const maxNumReais = maxNum ? numberToReal(maxNum) : '';
+
+    const resultUser = this.state.weddingsUser.map((item: any) => {return item.ID });
+    const favs = this.state.favorites.map((item: any) => {return item });
+
+
+
+    const result = this.state.items.map((item: any) => ({ budget: parseInt(item.BUDGET), guests: item.NUMBER_OF_GUESTS, style: item.STYLE, wedding_id: item.ID, owner_id: item.OWNER_ID }));
+
+    const weddingId = this.state.items.map((item: any) => { return item.ID });
+    const ownerId = this.state.items.map((item: any) => { return item.OWNER_ID });
+
+    var userswithWedding = resultUser.filter(i => ownerId.indexOf(i) !== -1);
+
+
+   //  console.log('weddingID', weddingId, 'ownerID',ownerId, 'users with wedding', userswithWedding)
+
+
+    const classic = result ? filterByValue(result, 'classico') : '';
+    const rustico = result ? filterByValue(result, 'rustico') : '';
+    const moderno = result ? filterByValue(result, 'moderno') : '';
+    const budgetTotal =  this.state.items.map((item: any) => { return item.BUDGET} );
+    const guests =  this.state.items.map((item: any) => { return item.NUMBER_OF_GUESTS} );
+
+    const classicMax = classic.map((item:any) => {return item.budget});
+
+    console.log(classicMax , findMax(...classicMax), )
+
+
+    const GuestSum = {
+      classico: sumNums({ res: result, field: 'classico' }, 'guests'),
+      moderno: sumNums({ res: result, field: 'moderno' }, 'guests'),
+      rustico: sumNums({ res: result, field: 'rustico' }, 'guests'),
     }
-  }
-  console.log('Largest ', currentMax);
-  return currentMax;
-};
 
-const maxNum = findMax(...budget);
+    const BudgetSum = {
+      classico: sumNums({ res: result, field: 'classico' }, 'budget'),
+      moderno: sumNums({ res: result, field: 'moderno' }, 'budget'),
+      rustico: sumNums({ res: result, field: 'rustico' }, 'budget'),
+    }
 
-const maxNumReais = maxNum? numberToReal(maxNum) : '';
-
-const filterByValue = (array, string) => {
-  return array.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(string.toLowerCase()) !== -1);
-}
-
-var result = this.state.items.map((item:any)  => ({ budget: parseInt(item.BUDGET), guests: item.NUMBER_OF_GUESTS, style: item.STYLE }));
-
-const classic = result?  filterByValue(result, 'classico') : '';
-const rustico = result?  filterByValue(result, 'rustico') : '';
+     const maxClass = numberToReal(findMax(...classicMax));
 
 
-const moderno = result?  filterByValue(result, 'moderno') : '';
-
-
-
-// var rusticoSum = rustico.map((item:any)  => item.budget);
- var guestsRusticoSum = rustico.map((item:any)  => parseInt(item.guests));
-
- var budgetRusticoSum = rustico.map((item:any)  => parseInt(item.budget));
- var budgetModernoSum = moderno.map((item:any)  => parseInt(item.budget));
- var budgetClassSum = classic.map((item:any)  => parseInt(item.budget));
-
- var sumgRustico = sortedNumbers(guestsRusticoSum);
- var budgetRusSort = sortedNumbers(budgetRusticoSum);
- const sumgRus = sumgRustico? sumgRustico.slice(0, rustico.length).reduce((a, b) => a + b, 0) : '';
- const budgetRus = budgetRusSort? budgetRusSort.slice(0, budgetRusticoSum.length).reduce((a, b) => parseInt(a) + parseInt(b), 0) : '';
-
-const noZero = budgetRusSort.filter(val => val !== 0);
- const averageBudget = budgetRusSort? budgetRusSort.reduce((a,v,i)=>(a*i+v)/(i+1), 0) : '';
-  console.log('budgetRusSort',budgetRusticoSum.join().split(','))
-
-const StrArr = budgetRusticoSum.join().split(',');
-
-const StrMod = budgetModernoSum.join().split(',');
-const StrClass = budgetClassSum.join().split(',');
-
-  const SumSum = StrArr
-  .map( function(elt){ // assure the value can be converted into an integer
-    return /^\d+$/.test(elt) ? parseInt(elt) : 0; 
-  })
-  .reduce( function(a,b){ // sum all resulting numbers
-    return a+b
-  })
-
-  const SumSumMod = StrMod
-  .map( function(elt){ // assure the value can be converted into an integer
-    return /^\d+$/.test(elt) ? parseInt(elt) : 0; 
-  })
-  .reduce( function(a,b){ // sum all resulting numbers
-    return a+b
-  })
-
-
-  const SumSumClass = StrClass
-  .map( function(elt){ // assure the value can be converted into an integer
-    return /^\d+$/.test(elt) ? parseInt(elt) : 0; 
-  })
-  .reduce( function(a,b){ // sum all resulting numbers
-    return a+b
-  })
-  const sumTotal = SumSumClass + SumSumMod + SumSum;
-
-
-  // console.log('budget Rustico', budgetRus)
-
-  // console.log('guests sort', sumgRustico)
-  // console.log('average sort', averageBudget)
-
-  // console.log('SumRus',parseInt(sumgRus) )
-  //console.log('SumRus',budgetRus )
-// var sumRustico = rusticoSum.reduce(sum, []);
-//  console.log('rusticoSum', rustico? sumgRustico : '', )
-//   console.log('rusticoSum', rustico? sumRustico : '', )
-// console.log('Classico', classic, classic.length );
-// console.log('Rustico', rustico, rustico.length );
-// console.log('Moderno', moderno, moderno.length );
-    //  const a = this.state.items.map((item: dataApi) => (
-    //     budget = item.BUDGET
-    //   ));
-
-     const tableIcons: Icons = {
+    const tableIcons: Icons = {
       Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
       Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
       Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
@@ -211,43 +195,91 @@ const StrClass = budgetClassSum.join().split(',');
       ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
     };
 
+    const totalBudget = BudgetSum.classico + BudgetSum.rustico + BudgetSum.moderno
+    const totalGuests = GuestSum.classico + GuestSum.rustico + GuestSum.moderno
+    // const averageBudget = totalBudget ? totalBudget.reduce((a, v, i) => (a * i + v) / (i + 1), 0) : '';
+    // const budgetA = convNumtoStr(this.state.budget);
+    
+    // const avgBudget =  totalBudget ? totalBudget.toString().reduce((a, v, i) => (a * i + v) / (i + 1), 0): '' ;
+   
+ 
+
+    // const averageBudget = budgetTotal ? convNumtoStr(budgetTotal).reduce((a, v, i) => (a * i + v) / (i + 1), 0) : '';
+  //  console.log('total',AvgNums(budgetTotal))
+
+    const imageCas = 'https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg';
+    const imageRus = 'https://bellethemagazine.com/wp-content/uploads/2018/05/Outdoor-burgundy-rustic-wedding-ceremony-615x410.jpeg'
+    const imageMod = 'https://greenweddingshoes.com/wp-content/uploads/2019/08/loveclub-wedding-12.jpg';
+    const imageClass = 'https://1hq6f244nzqssy4d8fp6y7re-wpengine.netdna-ssl.com/wp-content/uploads/2018/04/elegant-wedding-classic-ballroom-wedding-inspiration20.jpg';
+   
+    
+    // Calcula o Número médio de Guests  
+    
+    const avgGuests = parseInt(AvgNums(guests));
 
 
-    // const a = this.state.items.map((item: dataApi) => (
-    //     this.state.dataTable.BUDGET = item.BUDGET
-    //   ));
+    // Budget Total / Soma de Todos os Guests
+    let avgGuestSpend = totalBudget  / returnSums(guests);
+    
+    
+    
+    avgGuestSpend = numberToReal(parseInt(avgGuestSpend.toString()));
+    const dataRustico = {
+      content: rustico.length,
+      title: "Casamentos Rusticos",
+      image: imageRus,
+      sum: numberToReal(GuestSum.rustico)
+    }
+    const dataModerno = {
+      content: moderno.length,
+      title: "Casamentos Modernos",
+      image: imageMod,
+      sum: numberToReal(GuestSum.moderno)
+    }
 
-    //   const b =  {brands.map((brand) => {
-    //     return <p>{brand}</p>;
-    //   })}
+    const dataClassic = {
+      content: classic.length,
+      title: "Casamentos Classicos",
+      image: imageClass,
+      sum: numberToReal(GuestSum.classico),
+       maxVal: maxClass
+    }
+    const dataWedding = {
+      content: classic.length + moderno.length + rustico.length,
+      maxVal: maxNumReais,
+      guests: returnSums(guests),
+      AvgGuests: avgGuests,
+      image: imageCas,
+      medio:  numberToReal(AvgNums(budgetTotal)),
+      medioGasto: avgGuestSpend,
+      title: "Casamentos",
+      sum: numberToReal(totalBudget)
+    }
 
-    const imageCas =  'https://see.news/wp-content/uploads/2019/11/Marriage-Wayfinder-Blog-Featured-Image-750x375.jpg';
-const dataRustico = {
-  content:rustico.length,
-  title:"Casamentos Rusticos",
-  image:imageCas,
-  sum: numberToReal(SumSum)
-}
-const dataModerno = {
-  content:moderno.length,
-  title:"Casamentos Modernos",
-  image:imageCas,
-  sum: numberToReal(SumSumMod)
-}
 
-const dataClassic ={
-  content:classic.length,
-  title:"Casamentos Classicos",
-  image:imageCas,
-  sum: numberToReal(SumSumClass)
-}
-const dataWedding = { 
-  content:maxNumReais,
-  image:imageCas,
-  title:"Casamentos",
-  sum: numberToReal(sumTotal)
-}
+    const chartData = [
+      {
+        name: 'Total',
+        value: totalBudget,
+        guests: totalGuests
+      },
+      {
+        name: 'Classico',
+        value: BudgetSum.classico,
+        guests: GuestSum.classico
 
+      },
+      {
+        name: 'Rusticos',
+        value: BudgetSum.rustico,
+        guests: GuestSum.rustico
+      },
+      {
+        name: 'Modernos',
+        value: BudgetSum.moderno,
+        guests: GuestSum.moderno
+      }
+    ]
     return (
       <div>
 
@@ -255,38 +287,55 @@ const dataWedding = {
 
 
 
-    {dataType === 'wedding' ? 
-    <div>
-       <Grid container spacing={3}>
-       <Grid item xs={3}>
-       <MediaCard  data={dataWedding}/> 
-       </Grid>
-       <Grid item xs={3}>
-       <MediaCard  data={dataClassic} /> 
-       </Grid>
-       <Grid item xs={3}>
-       <MediaCard  data={dataRustico} />
-       </Grid>
-       <Grid item xs={3}>
-       <MediaCard  data={dataModerno} /> 
+        {dataType === 'wedding' ?
+          <div>
 
-       </Grid>
-       </Grid>
-    <br/>
-  
-    <MaterialTable
-    icons={tableIcons}
-    columns={[
-      { title: 'Budget', field: 'budget' },
-      { title: 'Estilo', field: 'style' },
-      { title: 'Convidados', field: 'guests' },
-    ]}
-    data={result}
-    localization={{ toolbar: {searchPlaceholder:'Pesquisar' }}}
-    title="Tabela de Casamento"
-  /> </div> :
-                ''}  
-    
+            <div>
+              <Grid container spacing={3}>
+
+
+                <Grid item xs={6}>
+                  <DataCard title={'Gráfico de Budget Total'} chartType="bar" chartData={chartData} />
+                </Grid>
+
+
+
+                <Grid item xs={6}>
+                  <DataCard title={'Gráfico de Budget Total'} chartType="bar" chartData={chartData} />
+                </Grid>
+              </Grid>
+            </div>
+
+            <Grid container spacing={3}>
+              <Grid item xs={3}>
+                <MediaCard data={dataWedding} />
+              </Grid>
+              <Grid item xs={3}>
+                <MediaCard data={dataClassic} />
+              </Grid>
+              <Grid item xs={3}>
+                <MediaCard data={dataRustico} />
+              </Grid>
+              <Grid item xs={3}>
+                <MediaCard data={dataModerno} />
+
+              </Grid>
+            </Grid>
+            <br />
+
+            <MaterialTable
+              icons={tableIcons}
+              columns={[
+                { title: 'Budget', field: 'budget' },
+                { title: 'Estilo', field: 'style' },
+                { title: 'Convidados', field: 'guests' },
+              ]}
+              data={result}
+              localization={{ toolbar: { searchPlaceholder: 'Pesquisar' } }}
+              title="Tabela de Casamento"
+            /> </div> :
+          ''}
+
       </div>
     )
   }

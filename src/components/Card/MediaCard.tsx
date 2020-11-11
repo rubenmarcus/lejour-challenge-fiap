@@ -29,13 +29,37 @@ export default function MediaCard({data}) {
           title="Contemplative Reptile"
         />
         <CardContent>
+        <Typography gutterBottom variant="h5" component="h1">
+        {data.content}
+          </Typography>
           <Typography gutterBottom variant="h5" component="h2">
         {data.title}
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-         {data.content}
+          <b>Maior Valor:</b> {data.maxVal}
          
           </Typography>
+        
+          <Typography variant="body2" color="textSecondary" component="p">
+          <b>Total Convidados:</b> {data.guests}
+         
+          </Typography>
+          <Typography variant="body2" color="textSecondary" component="p">
+          <b>Média Convidados:</b> {data.AvgGuests}
+         
+          </Typography>
+          <Typography variant="body2" color="textSecondary" component="p">
+          <b>Valor Gasto Médio por Convidado:</b> 
+          <br />
+          {data.medioGasto}
+         
+          </Typography>
+  
+            <Typography variant="body2" color="textSecondary" component="p">
+           <b>Valor Médio:</b> {data.medio}
+            
+             </Typography> 
+        
           {data.sum? 
             <Typography variant="body2" color="textSecondary" component="p">
            <b>Valor Total:</b> {data.sum}
@@ -43,6 +67,7 @@ export default function MediaCard({data}) {
              </Typography> : ''
         
         }
+
         </CardContent>
       </CardActionArea>
    
