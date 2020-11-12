@@ -22,11 +22,14 @@ import { Icons } from 'material-table';
 import MediaCard from '../Card/MediaCard'
 import DataCard from '../Card/DataCard'
 import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
-import { sumNums, filterByValue, AvgNums, returnSums, numberToReal } from '../../helpers';
+import { sumNums, filterByValue, AvgNums, returnSums, numberToReal , Percentage} from '../../helpers';
+import CircularIndeterminate from '../Layout/Loading';
+import { PanelWedding } from './PanelWedding';
 
 interface TodoProps {
   endpoint: string,
@@ -101,7 +104,7 @@ export default class PanelComponent extends React.Component<TodoProps> {
   render() {
 
     if (this.state.items.length === 0) {
-      return <div>Loading...</div>
+      return <div><CircularIndeterminate /></div>
     }
 
 
@@ -143,6 +146,8 @@ export default class PanelComponent extends React.Component<TodoProps> {
     const weddingId = this.state.items.map((item: any) => { return item.ID });
     const ownerId = this.state.items.map((item: any) => { return item.OWNER_ID });
 
+    console.log('resultUser',this.state.weddingsUser.length)
+
     var userswithWedding = resultUser.filter(i => ownerId.indexOf(i) !== -1);
 
 
@@ -157,7 +162,7 @@ export default class PanelComponent extends React.Component<TodoProps> {
 
     const classicMax = classic.map((item:any) => {return item.budget});
 
-    console.log(classicMax , findMax(...classicMax), )
+   //  console.log(classicMax , findMax(...classicMax), )
 
 
     const GuestSum = {
@@ -255,72 +260,74 @@ export default class PanelComponent extends React.Component<TodoProps> {
       title: "Casamentos",
       sum: numberToReal(totalBudget)
     }
+    const totalWedding = classic.length + moderno.length + rustico.length;
 
+    const chartPercentage = [{
+      name:'Rustico',
+      value: Percentage(rustico.length, totalWedding)
+
+    },
+    {
+      name:'Classico',
+      value: Percentage(classic.length, totalWedding)
+
+    },
+    {
+      name:'Moderno',
+      value: Percentage(moderno.length, totalWedding)
+
+    }
+  ]
+  console.log('chartPercentage', chartPercentage)
+  const COLORS = ['#68BFB7', '#84B8E2', '#DB5D79', '#EA8079'];
 
     const chartData = [
       {
         name: 'Total',
         value: totalBudget,
-        guests: totalGuests
+        guests: totalGuests,
+        color: COLORS[1]
       },
       {
         name: 'Classico',
         value: BudgetSum.classico,
-        guests: GuestSum.classico
+        guests: GuestSum.classico,
+        color: COLORS[2]
 
       },
       {
         name: 'Rusticos',
         value: BudgetSum.rustico,
-        guests: GuestSum.rustico
+        guests: GuestSum.rustico,
+        color: COLORS[2]
       },
       {
         name: 'Modernos',
         value: BudgetSum.moderno,
-        guests: GuestSum.moderno
+        guests: GuestSum.moderno,
+        color: COLORS[2]
       }
     ]
+
+    console.log('userswithWedding', userswithWedding.length)
+
+    const weddingPanelData = {
+      budgetData: chartData, chartPercentage: chartPercentage, dataWedding: dataWedding, dataClassic: dataClassic, dataRustico: dataRustico, dataModerno: dataModerno
+    }
     return (
       <div>
 
 
-
-
+<p> { userswithWedding.length } Usuários com casamento</p>
 
         {dataType === 'wedding' ?
           <div>
+            {this.state.items.length !== 0? 
+            
+            <PanelWedding  data={weddingPanelData}/> : ''
 
-            <div>
-              <Grid container spacing={3}>
+          }
 
-
-                <Grid item xs={6}>
-                  <DataCard title={'Gráfico de Budget Total'} chartType="bar" chartData={chartData} />
-                </Grid>
-
-
-
-                <Grid item xs={6}>
-                  <DataCard title={'Gráfico de Budget Total'} chartType="bar" chartData={chartData} />
-                </Grid>
-              </Grid>
-            </div>
-
-            <Grid container spacing={3}>
-              <Grid item xs={3}>
-                <MediaCard data={dataWedding} />
-              </Grid>
-              <Grid item xs={3}>
-                <MediaCard data={dataClassic} />
-              </Grid>
-              <Grid item xs={3}>
-                <MediaCard data={dataRustico} />
-              </Grid>
-              <Grid item xs={3}>
-                <MediaCard data={dataModerno} />
-
-              </Grid>
-            </Grid>
             <br />
 
             <MaterialTable

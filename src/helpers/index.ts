@@ -9,6 +9,8 @@ export const filterByValue = (array, string) => {
 export const propbyFilter = (result, prop) => {
   return result.map((item: any) => parseInt(item[prop]));
 }
+export const Percentage = (exp, inc) => { return Math.round((exp / inc) * 100) }
+
 
 // Results Sum of Filtered Params get one field
 export const sumNums = (value, param) => {
