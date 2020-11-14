@@ -4,6 +4,9 @@
 export const filterByValue = (array, string) => {
   return array.filter((data) => JSON.stringify(data).toLowerCase().indexOf(string.toLowerCase()) !== -1);
 }
+export const applyFilter = (data, filter) => data.filter(obj =>
+  Object.entries(filter).every(([prop, find]: [any, any]) => find.includes(obj[prop]))
+);
 
 // Filter Api Result by Parameter and Return all values with this param value
 export const propbyFilter = (result, prop) => {
@@ -14,8 +17,7 @@ export const Percentage = (exp, inc) => { return Math.round((exp / inc) * 100) }
 
 // Results Sum of Filtered Params get one field
 export const sumNums = (value, param) => {
-  console.log()
-
+  
   let filteredValue = filterByValue(value.res, value.field);
   filteredValue = propbyFilter(filteredValue, param)
   filteredValue = convNumtoStr(filteredValue);
@@ -59,16 +61,16 @@ export const returnSums = (val) =>{
 }
 
 // Max Number
-const findMax = (...budget) => {
+export const findMax = (...budget) => {
   let currentMax = budget[0]; // 2
 
   for (const number of budget) {
     if (number > currentMax) {
-      console.log(number, currentMax);
+    //  console.log(number, currentMax);
       currentMax = number;
     }
   }
-  console.log('Largest ', currentMax);
+ // console.log('Largest ', currentMax);
   return currentMax;
 };
 

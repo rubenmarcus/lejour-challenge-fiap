@@ -82,17 +82,17 @@ export default function NavTabs() {
           aria-label="nav tabs example"
           
         >
-          <LinkTab label="Casamentos" href="/drafts" {...a11yProps(0)} />
-          <LinkTab label="Apontamentos" href="/trash" {...a11yProps(1)} />
-          <LinkTab label="Invoice" href="/spam" {...a11yProps(2)} />
+          <LinkTab label="Invoices" href="/drafts" {...a11yProps(0)} />
+          <LinkTab label="Casamentos" href="/trash" {...a11yProps(1)} />
+          <LinkTab label="Apontamentos" href="/spam" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
-          <h3>Casamentos</h3>
-      <PanelComponent endpoint="wedding" />
+ 
+      <PanelComponent endpoint="invoice" />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Page Two
+      <PanelComponent endpoint="wedding" />
       </TabPanel>
       <TabPanel value={value} index={2}>
         Page Three

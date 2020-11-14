@@ -1,8 +1,9 @@
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import React, { forwardRef } from "react";
+import React from "react";
 import MediaCard from "../Card/MediaCard";
 import DataCard from "../Card/DataCard";
 import Grid from "@material-ui/core/Grid";
+import { TableComponent } from "../Table";
 
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
@@ -24,8 +25,17 @@ export const PanelWedding = (data) => {
 
     const classes = useStyles();
     const dataPanel = data.data;
-  return (
+    console.log(dataPanel, 'datapanel')
+  return ( 
     <div className={classes.root}>
+        <Grid item xs={12}>
+          <DataCard
+            title={"Gráfico de Valores de Invoice"}
+            chartType="line"
+            chartData={dataPanel.invoice}
+          />
+        </Grid>
+       
       <Grid container spacing={3}>
         <Grid item xs={6}>
           <DataCard
@@ -34,6 +44,7 @@ export const PanelWedding = (data) => {
             chartData={dataPanel.budgetData}
           />
         </Grid>
+     
 
         <Grid item xs={6}>
           <DataCard
@@ -43,21 +54,29 @@ export const PanelWedding = (data) => {
           />
         </Grid>
       </Grid>
-
+    
       <Grid container spacing={3}>
         <Grid item xs={3}>
           <MediaCard data={dataPanel.dataWedding} />
         </Grid>
-        <Grid item xs={3}>
-          <MediaCard data={dataPanel.dataClassic} />
+         <Grid item xs={3}>
+         <MediaCard data={dataPanel.dataClassic} />
         </Grid>
         <Grid item xs={3}>
-          <MediaCard data={dataPanel.dataRustico} />
+           <MediaCard data={dataPanel.dataRustico} />
         </Grid>
         <Grid item xs={3}>
           <MediaCard data={dataPanel.dataModerno} />
         </Grid>
-      </Grid>
-    </div>
+       </Grid>
+       {
+       
+       dataPanel.result? 
+        <TableComponent data={dataPanel.result} />:
+        ''
+    }
+  
+       </div>
+
   );
 };
